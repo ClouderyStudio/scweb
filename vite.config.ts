@@ -34,5 +34,8 @@ export default defineConfig({
     target: 'es2020',
     cssCodeSplit: false,
     chunkSizeWarningLimit: 800,
+    // 默认 4KB 以内会内联成 base64：头像全部落在这个区间，会把 20KB+ 灌进首屏 JS。
+    // 这里改成 1KB，头像仍走独立文件（带哈希、长缓存、loading=lazy），不再拖慢首屏。
+    assetsInlineLimit: 1024,
   },
 })

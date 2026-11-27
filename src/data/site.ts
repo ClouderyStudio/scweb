@@ -82,15 +82,36 @@ export interface ContactItem {
   href?: string
 }
 
+/**
+ * 图片走 Vite 资产管线：src/assets/img 下的 webp 会在构建时输出成
+ * dist/assets/<name>-<hash>.webp，文件名带内容哈希。
+ *
+ * 为什么要这样：站点托管在 EdgeOne Pages，它给 /assets/* 的响应头是
+ * `Cache-Control: public, max-age=31536000`，而 /img/* 是 `max-age=0, must-revalidate`
+ * —— 放在 public/img 里的图片每次访问都要重新校验，30 个资源就是 30 次往返。
+ * 挪进 assets 后回访命中一年缓存，一个请求都不发。
+ */
+const IMAGES = import.meta.glob('../assets/img/**/*.webp', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+function img(path: string): string {
+  const url = IMAGES[`../assets/img/${path}.webp`]
+  if (!url) throw new Error(`[site.ts] 找不到图片：${path}.webp`)
+  return url
+}
+
 export const site = {
   name: '云术生存战争',
   fullName: '云术生存战争服务器',
   operator: '云术工作室',
   title: '云术生存战争服务器官网',
   description: '云术生存战争服务器官方网站：服务器介绍、特色玩法、管理组、玩家作品、官方公告与加入方式。',
-  logoMark: 'img/logo-mark.jpg',
-  logoWide: 'img/logo-wide.png',
-  heroImage: 'img/hero.jpg',
+  logoMark: img('logo-mark'),
+  logoWide: img('logo-wide'),
+  heroImage: img('hero'),
   qqGroup: '706645329',
   qqGroupLink: 'https://qm.qq.com/q/krxlkaQHYe',
   ownerQQ: '2457483710',
@@ -182,21 +203,21 @@ export const services = {
 export const promo = {
   title: '服务器宣传片',
   text: '宣传片还在制作中，先去看看玩家们的作品吧。',
-  image: 'img/hero.jpg',
+  image: img('hero'),
 }
 
 export const team = {
   title: '服务器管理组',
   lead: '感谢各个管理员的辛勤付出',
   members: [
-    { name: '云术', role: '云术工作室室长，云术服务器服主', avatar: 'img/avatar/yushu.jpg', qq: site.ownerQQ },
-    { name: '信念', role: '云术工作室成员，云术服务器副服主', avatar: 'img/avatar/xinnian.jpg', qq: site.adminQQ },
+    { name: '云术', role: '云术工作室室长，云术服务器服主', avatar: img('avatar/yushu'), qq: site.ownerQQ },
+    { name: '信念', role: '云术工作室成员，云术服务器副服主', avatar: img('avatar/xinnian'), qq: site.adminQQ },
     { name: '薛宏辉', role: '技术测试员', qq: '1705593898' },
-    { name: '睡神Julian', role: '特别资助人', avatar: 'img/avatar/shuishen.jpg', qq: '3031952142' },
-    { name: '枫璇夜の曲', role: '后台管理', avatar: 'img/avatar/fengxuanye.jpg', qq: '2471258612' },
-    { name: '火药当燃料', role: '社区列表管理', avatar: 'img/avatar/huoyao.jpg', qq: '1258341177' },
-    { name: 'Zero', role: '群聊代理', avatar: 'img/avatar/zero.jpg', qq: '3014786442' },
-    { name: '：）', role: '群聊管理', avatar: 'img/avatar/smiley.jpg', qq: '2839964480' },
+    { name: '睡神Julian', role: '特别资助人', avatar: img('avatar/shuishen'), qq: '3031952142' },
+    { name: '枫璇夜の曲', role: '后台管理', avatar: img('avatar/fengxuanye'), qq: '2471258612' },
+    { name: '火药当燃料', role: '社区列表管理', avatar: img('avatar/huoyao'), qq: '1258341177' },
+    { name: 'Zero', role: '群聊代理', avatar: img('avatar/zero'), qq: '3014786442' },
+    { name: '：）', role: '群聊管理', avatar: img('avatar/smiley'), qq: '2839964480' },
   ] satisfies Member[],
 }
 
@@ -235,7 +256,7 @@ export const sponsors = {
 export const satisfaction = {
   title: '服务器满意度统计',
   lead: '数据来自玩家回访，样本偏小，仅作参考。',
-  image: 'img/satisfaction.jpg',
+  image: img('satisfaction'),
   votes: [
     { label: '满意', count: 7, percent: 70 },
     { label: '还行', count: 2, percent: 20 },
@@ -247,7 +268,7 @@ export const portfolio = {
   title: '玩家作品',
   lead: '玩家创造的优秀作品会放在此处展示，投稿作品直接联系服主或副服主即可。最后更新于 2024 年 6 月。',
   works: [1, 2, 3, 4, 5, 6].map((n) => ({
-    src: `img/portfolio/${n}.jpg`,
+    src: img(`portfolio/${n}`),
     alt: `玩家作品 ${n}`,
   })) satisfies Work[],
 }
@@ -256,11 +277,11 @@ export const testimonials = {
   title: '玩家留言',
   lead: '他们的原话，一个字都没改。',
   items: [
-    { name: '一梦十世纪', gameName: '一梦十世纪', text: '善', avatar: 'img/avatar/yimeng.jpg' },
-    { name: '1XC0', gameName: '1XC0', text: '善', avatar: 'img/avatar/1xc0.jpg' },
-    { name: '火药当燃料', gameName: '火药当燃料', text: '善', avatar: 'img/avatar/huoyao-msg.jpg' },
+    { name: '一梦十世纪', gameName: '一梦十世纪', text: '善', avatar: img('avatar/yimeng') },
+    { name: '1XC0', gameName: '1XC0', text: '善', avatar: img('avatar/1xc0') },
+    { name: '火药当燃料', gameName: '火药当燃料', text: '善', avatar: img('avatar/huoyao-msg') },
     { name: '薛宏辉', gameName: '薛宏辉', text: '善' },
-    { name: 'LGX', gameName: 'LGX', text: '善', avatar: 'img/avatar/lgx.jpg' },
+    { name: 'LGX', gameName: 'LGX', text: '善', avatar: img('avatar/lgx') },
   ] satisfies Testimonial[],
 }
 
@@ -272,7 +293,7 @@ export const news = {
       title: '服务器规则',
       summary:
         '服务器内禁止违规行为！如开挂、买卖外挂、卡服、破坏地形和他人建筑、辱骂他人、故意寻衅滋事、偷东西、造谣诋毁等。',
-      image: 'img/notice/1.jpg',
+      image: img('notice/1'),
       href: site.docsUrl,
       hrefLabel: '了解详情',
     },
@@ -280,13 +301,13 @@ export const news = {
       title: '指令帮助',
       summary:
         '在聊天框输入指令并发送，指令前必须加「/」：/help 查看所有指令，/spawn 快速回城，/money 查看经济指令，/ys 查看小功能指令，/home 查看设家指令。',
-      image: 'img/notice/2.jpg',
+      image: img('notice/2'),
     },
     {
       title: '温馨提示',
       summary:
         '避免不必要的损失！没有领地石的玩家下线时把东西藏好或带在身上退出，自己管理不当导致丢失概不负责。主城门口的新手岛禁止放领地石，放领地石时请注意与其他玩家领地石的间距，防止因过近而不生效。',
-      image: 'img/notice/3.jpg',
+      image: img('notice/3'),
     },
     {
       title: '事件',
@@ -309,7 +330,7 @@ export const partners = {
   title: '合作方',
   lead: '合作方会在这里展示，需要合作的请联系服主。',
   items: [
-    { name: '云术工作室', logo: 'img/logo-mark.jpg', note: '服务器运营与技术支持' },
+    { name: '云术工作室', logo: img('logo-mark'), note: '服务器运营与技术支持' },
   ] satisfies Partner[],
 }
 

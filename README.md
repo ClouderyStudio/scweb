@@ -44,13 +44,15 @@ src/
   theme/tokens.css        配色令牌（生成，勿手改）
   theme/site.css          布局与排版
   icons/index.ts          图标（生成，勿手改）
+  assets/img/*.webp       图片（由 prepare-assets.py 生成，走 Vite 资产管线）
 scripts/
   gen-theme.mjs           从种子色生成 MD3 配色
   gen-icons.mjs           从 Material Symbols 里抽站点要用的图标
-  prepare-assets.py       压缩图片、抓 QQ 头像
+  prepare-assets.py       压缩图片（转 WebP）、抓 QQ 头像
   sync-m3-ui.mjs          同步组件库源码到 vendor/
   smoke.mjs               冒烟测试
 vendor/m3-ui/             组件库源码副本（生成，勿手改）
+public/favicon.png        站点图标（唯一留在 public 的图片）
 ```
 
 ## 关键决定
@@ -71,7 +73,14 @@ node scripts/gen-theme.mjs '#0a84ff'
 产物里不带几十万个图标的 JSON，也不发额外请求。
 
 **图片本地化并压缩。** 原站图片走 `oss.cldery.com` 外链，且是 1920×1080 的原图（单张 1MB）。
-这里按实际显示宽度重编码，11MB → 1MB；QQ 头像也抓到本地，避免首屏被第三方域名拖住。
+这里按实际显示宽度重编码，11MB → 0.6MB；QQ 头像也抓到本地，避免首屏被第三方域名拖住。
+
+**图片放 `src/assets` 而不是 `public`，是为了拿长缓存。** 站点托管在 EdgeOne Pages，
+它给 `/assets/*` 的响应头是 `Cache-Control: public, max-age=31536000`，给 `/img/*` 的却是
+`max-age=0, must-revalidate`。图片放进 `public/img` 时，每次访问都要为 20 多张图各发一次
+条件请求，回访等于重下一次；交给 Vite 资产管线（`src/assets/img` + `import.meta.glob`）
+后文件名带内容哈希、落到 `/assets/`，回访命中一年缓存，图片请求归零。
+新增图片：丢进 `src/assets/img/`，在 `site.ts` 里用 `img('xxx')` 引用即可。
 
 **表单说真话。** 原站的留言表单没有后端，点提交什么都不会发生。新版仍然不接后端，
 但会明确告诉用户「还没接入，请到交流群找管理」，而不是假装成功。
@@ -98,7 +107,7 @@ node scripts/sync-m3-ui.mjs
 | form-validator | 组件内校验 + `M3TextField` 错误态 + `M3SnackbarHost` 提示 |
 | 回到顶部 jquery 脚本 | `M3Fab` + 滚动监听 |
 | 无暗色模式 | 跟随系统，可手动切换并记忆 |
-| 图片外链 + 1MB 原图 | 本地化 + 压缩 |
+| 图片外链 + 1MB 原图 | 本地化 + WebP（1.07MB → 0.58MB）+ 内容哈希长缓存 |
 
 ## 已知取舍
 
