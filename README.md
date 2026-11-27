@@ -57,13 +57,19 @@ public/favicon.png        站点图标（唯一留在 public 的图片）
 
 ## 关键决定
 
-**配色由品牌色生成。** `scripts/gen-theme.mjs` 把原站主色 `#3d60f4` 当种子，
-按 MD3 的「色调 → 角色」规则生成明暗两套 `--md-sys-color-*`：主色取 tone 45（种子色本身就在这一档），
-其余角色按 40/90/10 等标准档位取，逐档做 sRGB 色域裁剪。改品牌色只需：
+**配色由品牌色生成。** `scripts/gen-theme.mjs` 把墨青 `#0f766e` 当种子，
+按 MD3 的「色调 → 角色」规则生成明暗两套 `--md-sys-color-*`：主色取 tone 45，
+其余角色按 40/90/10 等标准档位取，逐档做 sRGB 色域裁剪。
+tone-90 的容器色在青色相里天然偏荧光，所以生成时会把 `*-container` 往底色上混 42%
+（主容器 50%），出的是淡彩而不是荧光色块。改品牌色只需：
 
 ```bash
 node scripts/gen-theme.mjs '#0a84ff'
 ```
+
+大面积色块没有直接铺 `primary`，而是用 `site.css` 里的 `--site-ink`（墨青 `#08302e`）
+配 `--site-on-ink`，白字对比度 12.6:1；区块内的文字/徽记仍然读 `--md-sys-color-on-primary`，
+所以组件不用改一行。
 
 **结构令牌全部来自组件库。** 圆角、字阶、海拔、动效用的是 `--md-sys-*`，
 所以暗色模式不需要第二套样式表；`theme/site.css` 里没有一处写死的颜色（少量图片上的白色蒙层除外）。
@@ -74,6 +80,11 @@ node scripts/gen-theme.mjs '#0a84ff'
 
 **图片本地化并压缩。** 原站图片走 `oss.cldery.com` 外链，且是 1920×1080 的原图（单张 1MB）。
 这里按实际显示宽度重编码，11MB → 0.6MB；QQ 头像也抓到本地，避免首屏被第三方域名拖住。
+
+**Logo 是设计稿里抠出来的。** 拿到的是带粉色渐变底的 400×400 PNG，脚本按「与背景差异 + 粉色判据」
+把底去掉，留下带白描边的透明 WebP：页脚用完整字标 `logo-lockup.webp`（658×246），
+顶栏和 favicon 用同一套笔画的「云」字方块 `logo-mark.webp`（字标缩到 40px 会糊成一团）。
+换 logo 时重跑一次抠图脚本即可，不要直接把带底的图丢进 `public/`。
 
 **图片放 `src/assets` 而不是 `public`，是为了拿长缓存。** 站点托管在 EdgeOne Pages，
 它给 `/assets/*` 的响应头是 `Cache-Control: public, max-age=31536000`，给 `/img/*` 的却是
@@ -106,7 +117,7 @@ node scripts/sync-m3-ui.mjs
 | wow.js 入场动画 | 组件库的 `v-reveal` 指令 |
 | form-validator | 组件内校验 + `M3TextField` 错误态 + `M3SnackbarHost` 提示 |
 | 回到顶部 jquery 脚本 | `M3Fab` + 滚动监听 |
-| 无暗色模式 | 跟随系统，可手动切换并记忆 |
+| 无暗色模式 | 跟随系统，可手动切换并记忆（墨青在深色下自动提亮） |
 | 图片外链 + 1MB 原图 | 本地化 + WebP（1.07MB → 0.58MB）+ 内容哈希长缓存 |
 
 ## 已知取舍

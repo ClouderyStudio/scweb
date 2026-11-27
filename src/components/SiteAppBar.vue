@@ -40,7 +40,7 @@ function go(id: string): void {
   <M3TopAppBar :scrolled="scrolled" sticky>
     <template #leading>
       <a class="app-bar__brand" :href="'#' + nav[0]!.id" @click.prevent="go(nav[0]!.id)">
-        <img class="app-bar__mark" :src="site.logoMark" :alt="site.operator" width="38" height="38" />
+        <img class="app-bar__mark" :src="site.logoMark" :alt="site.operator" width="96" height="36" />
         <span class="app-bar__names">
           <span class="app-bar__name">{{ site.name }}</span>
           <span class="app-bar__sub">服务器官网</span>

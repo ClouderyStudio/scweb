@@ -15,7 +15,7 @@
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-const SEED = process.argv[2] ?? '#3d60f4'
+const SEED = process.argv[2] ?? '#0f766e'
 
 /* ---------- sRGB <-> OKLab ---------- */
 
@@ -112,6 +112,13 @@ const NEUTRAL = { hue: seedHue, chroma: 0.004 }
 const NEUTRAL_VARIANT = { hue: seedHue, chroma: 0.013 }
 const ERROR = { hue: 25, chroma: 0.185 }
 
+/** 两个颜色线性混合：用来把高饱和的 tone-90 容器往底色上拉一点。 */
+const mixHex = (a, b, t) => {
+  const A = hexToRgb(a)
+  const B = hexToRgb(b)
+  return rgbToHex(A.map((v, i) => v * (1 - t) + B[i] * t))
+}
+
 const tone = (palette, t) => oklchToHex(toneToL(t), palette.chroma, palette.hue)
 
 const P = (t) => tone(PRIMARY, t)
@@ -121,6 +128,9 @@ const N = (t) => tone(NEUTRAL, t)
 const NV = (t) => tone(NEUTRAL_VARIANT, t)
 const E = (t) => tone(ERROR, t)
 
+/** tone-90 的容器色在青色系里会偏荧光，这里统一往底色调和，保证是「淡彩」而不是「荧光」。 */
+const soften = (color, darkBase, dark, amount = 0.42) => mixHex(color, dark ? darkBase : N(98), dark ? amount * 0.75 : amount)
+
 function roles(mode) {
   const dark = mode === 'dark'
   return {
@@ -128,7 +138,7 @@ function roles(mode) {
        压到 40 会和品牌色差出一整级，看着像另一家。 */
     primary: dark ? P(80) : P(45),
     'on-primary': dark ? P(20) : P(100),
-    'primary-container': dark ? P(30) : P(90),
+    'primary-container': soften(dark ? P(30) : P(90), N(6), dark, 0.5),
     'on-primary-container': dark ? P(90) : P(10),
     'primary-fixed': P(90),
     'primary-fixed-dim': P(80),
@@ -137,7 +147,7 @@ function roles(mode) {
 
     secondary: dark ? S(80) : S(40),
     'on-secondary': dark ? S(20) : S(100),
-    'secondary-container': dark ? S(30) : S(90),
+    'secondary-container': soften(dark ? S(30) : S(90), N(6), dark, 0.42),
     'on-secondary-container': dark ? S(90) : S(10),
     'secondary-fixed': S(90),
     'secondary-fixed-dim': S(80),
@@ -146,7 +156,7 @@ function roles(mode) {
 
     tertiary: dark ? T(80) : T(40),
     'on-tertiary': dark ? T(20) : T(100),
-    'tertiary-container': dark ? T(30) : T(90),
+    'tertiary-container': soften(dark ? T(30) : T(90), N(6), dark, 0.42),
     'on-tertiary-container': dark ? T(90) : T(10),
     'tertiary-fixed': T(90),
     'tertiary-fixed-dim': T(80),

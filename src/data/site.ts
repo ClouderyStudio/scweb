@@ -110,7 +110,7 @@ export const site = {
   title: '云术生存战争服务器官网',
   description: '云术生存战争服务器官方网站：服务器介绍、特色玩法、管理组、玩家作品、官方公告与加入方式。',
   logoMark: img('logo-mark'),
-  logoWide: img('logo-wide'),
+  logoWide: img('logo-lockup'),
   heroImage: img('hero'),
   qqGroup: '706645329',
   qqGroupLink: 'https://qm.qq.com/q/krxlkaQHYe',

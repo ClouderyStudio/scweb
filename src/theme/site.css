@@ -6,7 +6,7 @@
  */
 
 :root {
-  --site-hero-glow: color-mix(in srgb, var(--md-sys-color-primary-container) 85%, transparent);
+  --site-hero-glow: color-mix(in srgb, var(--md-sys-color-primary-container) 42%, var(--md-sys-color-surface));
   --site-radius-card: var(--md-sys-shape-corner-large);
   --site-radius-pill: var(--md-sys-shape-corner-full);
   --site-section-space: clamp(56px, 7vw, 104px);
@@ -14,6 +14,9 @@
   --site-max: var(--md-sys-page-max-width);
   --site-gap: clamp(12px, 1.6vw, 20px);
   --site-ease: var(--md-sys-motion-easing-emphasized-decelerate);
+  /* 墨青：大面积色块与它的前景色 */
+  --site-ink: #08302e;
+  --site-on-ink: #e4f4f0;
 }
 
 html {
@@ -21,7 +24,9 @@ html {
 }
 
 .dark {
-  --site-hero-glow: color-mix(in srgb, var(--md-sys-color-primary) 26%, transparent);
+  --site-hero-glow: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
+  --site-ink: #123f3b;
+  --site-on-ink: #d9efea;
 }
 
 body {
@@ -111,9 +116,14 @@ img {
   background-color: var(--md-sys-color-surface-container);
 }
 
+/* 大面积深色块用「墨青」：比直接铺 primary 稳，白字对比度 12.6:1。
+   区块内的文字/徽记仍然读 --md-sys-color-on-primary，所以这里把两个角色替换掉。 */
 .section--primary {
-  background-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
+  /* 只换底色和前景色；不动 --md-sys-color-primary，
+     否则区块里的按钮（用 primary 当文字色）会跟底色糊在一起。 */
+  --md-sys-color-on-primary: var(--site-on-ink);
+  background-color: var(--site-ink);
+  color: var(--site-on-ink);
 }
 
 .section--primary .t-body,
@@ -311,10 +321,10 @@ img {
 }
 
 .app-bar__mark {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--md-sys-shape-corner-medium);
-  object-fit: cover;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: contain;
   flex: 0 0 auto;
   box-shadow: var(--md-sys-elevation-level1);
 }
@@ -610,8 +620,8 @@ img {
 }
 
 .sponsor--featured {
-  background-color: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .sponsor--featured .sponsor__subtitle,
@@ -1040,9 +1050,10 @@ img {
 
 /* ---------------- 页脚 ---------------- */
 
+/* 页脚跟「服务器介绍」用同一块墨青，首尾呼应；深色模式下改用更深的底色 */
 .footer {
-  background-color: var(--md-sys-color-inverse-surface);
-  color: var(--md-sys-color-inverse-on-surface);
+  background-color: var(--site-ink);
+  color: var(--site-on-ink);
   padding-block: clamp(36px, 5vw, 56px) 24px;
 }
 
@@ -1073,7 +1084,7 @@ img {
 }
 
 .footer__logo {
-  width: 168px;
+  width: 220px;
   height: auto;
 }
 

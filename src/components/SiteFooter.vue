@@ -9,7 +9,7 @@ import { nav, site } from '@/data/site'
     <div class="section__inner">
       <div class="footer__grid">
         <div v-reveal class="footer__brand">
-          <img class="footer__logo" :src="site.logoWide" :alt="site.operator" width="360" height="132" />
+          <img class="footer__logo" :src="site.logoWide" :alt="site.operator" width="320" height="120" />
           <p class="footer__desc">
             {{ site.fullName }}由{{ site.operator }}运营。<br />
             一个长期开放、公益性质的生存战争服务器。
