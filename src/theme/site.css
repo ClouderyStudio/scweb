@@ -321,12 +321,12 @@ img {
 }
 
 .app-bar__mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: auto;
+  height: 38px;
   object-fit: contain;
+  /* 字标是浅蓝+白描边，落在白底顶栏上会糊掉，给一点投影把边缘托起来 */
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--site-ink) 30%, transparent));
   flex: 0 0 auto;
-  box-shadow: var(--md-sys-elevation-level1);
 }
 
 .app-bar__names {
@@ -347,6 +347,17 @@ img {
   font-size: 11px;
   color: var(--md-sys-color-on-surface-variant);
   white-space: nowrap;
+}
+
+/* 窄屏：logo 已经是字标，右侧文字缩小一点，别把顶栏挤爆 */
+@media (max-width: 560px) {
+  .app-bar__name {
+    font-size: 13px;
+  }
+
+  .app-bar__mark {
+    height: 32px;
+  }
 }
 
 .app-bar__nav {
